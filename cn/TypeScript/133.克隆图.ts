@@ -14,7 +14,21 @@
  *     }
  * }
  */
-
 function cloneGraph(node: Node | null): Node | null {
-	
+	const visited = new Map()
+    function dfs(node: Node | null): Node | null {
+        if (node === null) {
+            return node
+        }
+        if (visited.has(node)) {
+            return visited.get(node)
+        }
+        const cloneNode = new Node(node.val)
+        visited.set(node, cloneNode)
+        node.neighbors.forEach(neighbor => cloneNode.neighbors.push(dfs(neighbor)))
+        return cloneNode
+    }
+    return dfs(node)
 };
+
+
