@@ -2,7 +2,7 @@
 // @title split-array-largest-sum
 // @test([7,2,5,10,8],2)=18
 // @test([1,2,3,4,5],2)=9
-function splitArray(nums: number[], K: number): number {
+function splitArray(nums: number[], K: number): number { 
     const n = nums.length,
     dp = new Array(n + 1).fill(0).map(() => new Array(K + 1).fill(Infinity))
     const prefix = new Array(n + 1).fill(0)
@@ -17,6 +17,5 @@ function splitArray(nums: number[], K: number): number {
             }
         }
     }
-
     return dp[n][K]
-};
+}
