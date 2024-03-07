@@ -15,59 +15,49 @@
  *     }
  * }
  */
-
 function closestNodes(root: TreeNode | null, queries: number[]): number[][] {
-    const nums = [];
-
-    const inorderTraversal = (node) => {
-        if(!node) {
-            return;
+    const nums = []
+    const inorderTraversal = node => {
+        if (node === null) {
+            return
+        }
+        if (node.left) {
+            inorderTraversal(node.left)
         }
 
-        if(node.left) {
-            inorderTraversal(node.left);
-        }
+        nums.push(node.val)
 
-        nums.push(node.val);
-
-        if(node.right) {
-            inorderTraversal(node.right);
+        if (node.right) {
+            inorderTraversal(node.right)
         }
     }
+    inorderTraversal(root)
 
-    inorderTraversal(root);
+    const resultArr = new Array(queries.length)
 
-    const resultArr = new Array(queries.length);
+    for (let i = 0; i < queries.length; i++) {
+        const targetNum = queries[i]
 
-    for(let i = 0; i < queries.length; i++) {
-        const targetNum = queries[i];
-
-        // binary search
-        let leftIdx = 0;
-        let rightIdx = nums.length - 1;
-        let lastMaxMinValue = -1; // >>>> 5
-        let lastMinMaxValue = -1; // 5 <<<<
-
-        while(leftIdx <= rightIdx) {
-            const midIdx = Math.floor((leftIdx + rightIdx) / 2);
-
-            if(nums[midIdx] === targetNum) {
-                lastMaxMinValue = targetNum
-                lastMinMaxValue = targetNum
-                break;
-            } else if(nums[midIdx] < targetNum) {
-                leftIdx = midIdx + 1;
-                lastMaxMinValue = nums[midIdx];
+        let left = 0,
+        right = nums.length - 1
+        let leftMax = -1,
+        rightMin = -1
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2)
+            const pivot = nums[mid]
+            if (pivot === targetNum) {
+                leftMax = pivot
+                rightMin = pivot
+                break
+            } else if (pivot < targetNum) {
+                leftMax = pivot
+                left = mid + 1
             } else {
-                rightIdx = midIdx - 1;
-                lastMinMaxValue = nums[midIdx];
+                rightMin = pivot
+                right = mid - 1
             }
-
-        } 
-
-
-        resultArr[i] = [lastMaxMinValue, lastMinMaxValue];
+        }
+        resultArr[i] = [leftMax, rightMin]
     }
-
-    return resultArr;
-};
+    return resultArr
+}
