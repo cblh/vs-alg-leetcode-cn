@@ -6,29 +6,21 @@ function lastNonEmptyString(s: string): string {
     const map: Map<string, number> = new Map()
     const lastIndexMap: Map<string, number> = new Map()
     const n = s.length
+    let maxValue = -1
     for (let i = 0; i < n; i++) {
         const char = s[i]
-        map.set(char, (map.get(char) ?? 0) + 1)
+        const count = (map.get(char) ?? 0) + 1
+        map.set(char, count)
+        maxValue = Math.max(count, maxValue)
         lastIndexMap.set(char, i)
     }
-    let maxValue = -1
-    map.forEach((value, key) => {
-        if (value > maxValue) {
-            maxValue = value
+   
+    let str = ''
+    for (let i = 0; i < n; i++) {
+        const char = s[i]
+        if (map.get(char) === maxValue && lastIndexMap.get(char) === i) {
+            str += char
         }
-    })
-    const keys: string[] = []
-    map.forEach((value, key) => {
-        if (value === maxValue) {
-            keys.push(key)
-        }
-    })
-    return keys.map(key => {
-        return {
-            key,
-            lastIndex: lastIndexMap.get(key)!
-        }
-    })
-    .sort((x, y) => x.lastIndex - y.lastIndex)
-    .reduce((str, item) => str + item.key, '')
+    }
+    return str
 };
