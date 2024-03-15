@@ -10,19 +10,17 @@ function countMatchingSubarrays(nums: number[], pattern: number[]): number {
         const diff = nums[i] - nums[i - 1]
         numsDiff[i - 1] = diff > 0 ? 1 : (diff === 0 ? 0 : -1)
     }
-    let right = 0,
-    ans = 0
-    while (right < n) {
-        if (right >= patternCount) {
-            let result = true
-            for (let i = patternCount; i > 0; i--) {
-                result = result && numsDiff[right - i] === pattern[patternCount - i]
-            }
-            if (result) {
-                ans++
+    let ans = 0
+    for (let i = 0; i < n - patternCount; i++) {
+        let ok = true
+        for (let k = 0; k < patternCount && ok; k++) {
+            if (numsDiff[i + k] !== pattern[k]) {
+                ok = false
             }
         }
-        right++
+        if (ok) {
+            ans++
+        }
     }
     return ans
 };
