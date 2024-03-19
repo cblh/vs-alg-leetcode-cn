@@ -2,133 +2,57 @@
 // @title replace-question-marks-in-string-to-minimize-its-value
 // @test("???")="abc"
 // @test("a?a?")="abac"
+// @test("fd????c?mkhfk?to?l??fgzkkup???qtia")="fdabbecjmkhfkntorlsvfgzkkupwxyqtia"
 function minimizeStringValue(s: string): string {
-    const cnt: number[] = new Array(26).fill(0);
-        let k = 0;
-        for (let i = 0; i < s.length; i++) {
-            const c = s[i];
-            if (c === '?') {
-                ++k;
-            } else {
-                ++cnt[c.charCodeAt(0) - 'a'.charCodeAt(0)];
+    //1. 利用最小堆优先级队列 整理好替换'?'的逻辑顺序
+    const minHeap = new MinPriorityQueue({
+        compare: (a, b) => {
+            if (a[0] !== b[0]) {
+                return a[0] - b[0];
             }
+            return a[1] - b[1];
         }
-        
-        const pq: [number, number][] = [];
-        for (let i = 0; i < 26; ++i) {
-            pq.push([cnt[i], i]);
-        }
-        
-        pq.sort((a, b) => a[0] - b[0]);
+    });
 
-        const t: number[] = new Array(k);
-        for (let i = 0; i < k; ++i) {
-            const [v, c] = pq.shift()!;
-            t[i] = c;
-            pq.push([v + 1, c]);
-            pq.sort((a, b) => a[0] - b[0]);
-        }
-
-        t.sort((a, b) => a - b);
-
-        let j = 0;
-        const resultArray: string[] = s.split('');
-        for (let i = 0; i < s.length; i++) {
-            if (resultArray[i] === '?') {
-                resultArray[i] = String.fromCharCode(t[j++] + 'a'.charCodeAt(0));
-            }
-        }
-        
-        return resultArray.join('');
-}
-function minimizeStringValue2(s: string): string {
-    const minPriorityQueue = new MinPriorityQueue2()
-    for (let i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
-        minPriorityQueue.enqueue({
-            count: 0,
-            char: String.fromCharCode(i)
-        }, 0)
-    }
-    const arr: string[] = []
-    for (const char of s) {
-        if (char === '?') {
-            const { count, char } = minPriorityQueue.dequeue().element
-            arr.push(char)
-            minPriorityQueue.enqueue({
-                count: count + 1, char
-            }, count)
+    //2. 设定计数器 
+    // - 记录每个小写字母出现的次数
+    // - 记录 ? 符号在原 s中的下标, 等会儿用作替换 
+    const cnt = new Array(26).fill(0);
+    const questionIdx = [];
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === '?') {
+            questionIdx.push(i);
         } else {
-            const charCode = char.charCodeAt(0)
-            map.set(charCode, (map.get(charCode) ?? 0) + 1)
-            arr.push(char)
-        }
-    }
-    return arr.join('')
-};
-
-class MinPriorityQueue2 {
-    items: any[]
-    constructor() {
-        this.items = [];
-    }
-    // 优先队列添加元素，要根据优先级判断在队列中的插入顺序
-    enqueue(element, priority) {
-        let queueElement = {
-            element: element,
-            priority: priority
-        };
-
-        if (this.isEmpty()) {
-            this.items.push(queueElement);
-        } else {
-            let added = false;
-            for (let i = 0; i < this.size(); i++) {
-                if (queueElement.priority < this.items[i].priority) {
-                    this.items.splice(i, 0, queueElement);
-                    added = true;
-                    break;
-                }
-            }
-
-            if (!added) {
-                this.items.push(queueElement);
-            }
+            const index = s[i].charCodeAt(0) - 'a'.charCodeAt(0);
+            cnt[index]++;
         }
     }
 
-    // 移除队列的第一个元素，并返回被移除的元素
-    dequeue() {
-        return this.items.shift();
-    };
-
-    // 返回队列的第一个元素
-    front() {
-        return this.items[0];
-    };
-
-    // 判断是否为空队列
-    isEmpty() {
-        return this.items.length === 0;
-    };
-
-    // 获取队列的长度
-    size() {
-        return this.items.length;
-    };
-
-    // 清空队列
-    clear() {
-        this.items = [];
-    };
-
-    // 打印队列里的元素
-    print() {
-        let strArr = [];
-
-        strArr = this.items.map(function (item) {
-            return `${item.element}->${item.priority}`;
-        });
-
-        console.log(strArr.toString());
+    //3. 把s中小写字母的计数放入优先级队列中 初始化优先级队列
+    for (let i = 0; i < cnt.length; i++) {
+        minHeap.enqueue([cnt[i], i]);
     }
+
+    //因为Javascript的字符串是immutable的, 所以转成mutable的数组，等会儿按照questionIdx替换？符号
+    const ans = s.split('');
+
+    //先把需要替换的字符准备好, 细节: 等会儿需要先排序后替换
+    const tmp = new Array(questionIdx.length).fill(0);
+
+    //4.1 先准备
+    for (let i = 0; i < tmp.length; i++) {
+        //利用优先级队列的性质来准备需要替换的字符
+        const [dequeueCnt, dequeueIndex] = minHeap.dequeue();
+        tmp[i] = dequeueIndex;
+        minHeap.enqueue([dequeueCnt + 1, dequeueIndex]);
+    }
+    //4.2 再排序
+    tmp.sort((a, b) => a - b);
+    //4.3 后替换
+    for (let i = 0; i < tmp.length; i++) {
+        const idx = questionIdx[i];
+        ans[idx] = String.fromCharCode(tmp[i] + 'a'.charCodeAt(0));
+    }
+    return ans.join('');
+
 }
