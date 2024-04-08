@@ -9,14 +9,15 @@ function searchMatrix(matrix: number[][], target: number): boolean {
             right = n
         while (left < right) {
             const mid = Math.floor((left + right) / 2)
-            if (row[mid] >= target) {
+            const pivot = row[mid]
+            if (pivot >= target) {
                 right = mid
             } else {
                 left = mid + 1
             }
-        }
-        if (left !== n && row[left] === target) {
-            return true
+            if (left !== n && row[left] === target) {
+                return true
+            }
         }
     }
     return false
