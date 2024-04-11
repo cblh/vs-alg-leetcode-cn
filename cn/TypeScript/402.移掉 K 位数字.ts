@@ -4,14 +4,20 @@
 // @test("10200",1)="200"
 // @test("10",2)="0"
 function removeKdigits(num: string, k: number): string {
-    const nums = [...num]
-    while (k > 0) {
-        let idx = 0
-        while (idx < nums.length - 1 && nums[idx + 1] >= nums[idx]) {
-            idx++
+    const stk: string[] = []
+    for (const c of num) {
+        while (k && stk.length > 0 && stk[stk.length - 1] > c) {
+            stk.pop()
+            k--
         }
-        nums.splice(idx, 1)
-        k--
+        stk.push(c)
     }
-    return nums.join('').replace(/^0*/g, '') || '0'
+    while (k--) {
+        stk.pop()
+    }
+    let i = 0
+    for (; i < stk.length && stk[i] == '0'; i++) {
+    }
+    const ans = stk.slice(i).join('')
+    return ans === '' ? "0" : ans
 };
