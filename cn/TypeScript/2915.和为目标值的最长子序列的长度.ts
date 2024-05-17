@@ -10,9 +10,10 @@ function lengthOfLongestSubsequence(nums: number[], target: number): number {
     for (let i = 1; i <= n; i++) {
         const x = nums[i - 1]
         for (let j = 0; j <= target; j++) {
-            dp[i][j] = dp[i - 1][j]
             if (j >= x) {
-                dp[i][j] = Math.max(dp[i][j], dp[i - 1][j - x] + 1)
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - x] + 1)
+            } else {
+                dp[i][j] = dp[i - 1][j]
             }
         }
     }
