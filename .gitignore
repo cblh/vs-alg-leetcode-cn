@@ -1,3 +1,6 @@
 out/*
 **/node_modules
 **/.DS_Store
+cn/Python3/out/
+cn/Python3/mod/
+cn/Python3/__pycache__/
