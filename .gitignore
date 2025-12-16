@@ -3,3 +3,4 @@ out/*
 **/.DS_Store
 cn/Python3/out/
 cn/Python3/__pycache__/
+cn/Python3/mod/__pycache__/preImport.cpython-312.pyc
